@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Note Taker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Dark mode */
+body.dark {
+    background: #212121;
+    color: #e5e7eb;
+}
+
+header {
+    text-align: center;
+    padding: 40px 20px 10px;
+    position: relative;
+}
+
+h1 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 2.2em;
+    color: #4a90e2;
+}
+
+#clock {
+    margin-top: 10px;
+    font-size: 1.1em;
+    color: #555;
+    transition: color 0.3s;
+}
+
+body.dark #clock { color: #cbd5e1; }
+
+/* Dark mode toggle button far right */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s;
+}
+body.dark .theme-toggle { color: #e5e7eb; }
+
+.controls {
+    margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+button {
+    background: linear-gradient(135deg, #4a90e2, #357ABD);
+    border: none;
+    color: #fff;
+    padding: 12px 25px;
+    font-size: 1em;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-weight: 600;
+}
+
+button:disabled {
+    background: #2a5c99;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #357ABD, #2a5c99);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.output {
+    width: 90%;
+    max-width: 900px;
+    margin-bottom: 40px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.card {
+    background: #ffffffcc; /* Light mode */
+    border-radius: 15px;
+    padding: 20px;
+    transition: background 0.3s, color 0.3s;
+}
+
+body.dark .card {
+    background: #131313; /* Dark mode */
+    color: #e5e7eb;
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #4a90e2;
+}
+
+p { white-space: pre-wrap; }
+
+/* Custom Audio Player */
+.audio-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #ffffffcc; /* Light mode */
+    transition: background 0.3s, color 0.3s;
+}
+
+body.dark .audio-player {
+    background: #131313;
+}
+
+.audio-player button {
+    background: #4a90e2;
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.audio-player button:hover { background: #357ABD; }
+
+.audio-player input[type="range"] {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: #d1d5db; /* Light slider track */
+    appearance: none;
+    cursor: pointer;
+}
+
+body.dark .audio-player input[type="range"] {
+    background: #555; /* Dark slider track */
+}
+
+.audio-player input[type="range"]::-webkit-slider-thumb,
+.audio-player input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4a90e2;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.audio-player span {
+    font-size: 0.85em;
+    color: #333;
+    white-space: nowrap;
+}
+
+body.dark .audio-player span { color: #e5e7eb; }
+
+/* Modal */
+#nameModal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); 
+}
+
+.modal-content {
+    background-color: #ffffffcc;
+    margin: 15% auto; 
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    transition: background 0.3s, color 0.3s;
+}
+
+body.dark .modal-content {
+    background-color: #131313;
+    color: #e5e7eb;
+}
+
+.modal-content input {
+    width: 80%;
+    padding: 12px;
+    margin: 15px 0;
+    border-radius: 10px;
+    border: 1px solid #555;
+    background: #ffffffcc;
+    color: #333;
+    font-size: 1em;
+}
+
+body.dark .modal-content input {
+    background: #212121;
+    color: #e5e7eb;
+}
+
+.modal-content button { width: 45%; margin: 5px; }
+
+.fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from {opacity:0} to {opacity:1} }
+</style>
+</head>
+<body>
+<header>
+    <h1>🎙️ AI Note Taker</h1>
+    <div style="position:absolute; top:20px; right:20px;">
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+    <div id="clock"></div>
+    <p>Record a note or upload an audio file to get transcript & summary.</p>
+</header>
+
+<div class="controls">
+    <button id="recordBtn">🎤 Start Recording</button>
+    <button id="uploadBtn">📁 Upload Audio</button>
+    <input type="file" id="uploadInput" accept="audio/*" style="display:none;">
+    <button id="downloadBtn" disabled>💾 Download Transcript & Summary</button>
+</div>
+
+<div class="output">
+    <div class="card">
+        <h2>Playback</h2>
+        <div class="audio-player">
+            <button id="playBtn">▶️</button>
+            <input type="range" id="seekBar" value="0" min="0" step="1">
+            <span id="timeDisplay">00:00 / 00:00</span>
+        </div>
+    </div>
+    <div class="card">
+        <h2>Transcript</h2>
+        <p id="transcript">None yet.</p>
+    </div>
+    <div class="card">
+        <h2>Summary</h2>
+        <p id="summary">None yet.</p>
+    </div>
+</div>
+
+<div id="nameModal">
+    <div class="modal-content">
+        <h3>Name Your File</h3>
+        <input type="text" id="filenameInput" placeholder="Enter file name">
+        <div>
+            <button id="saveNameBtn">Save</button>
+            <button id="cancelNameBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let mediaRecorder, audioChunks=[], latestTranscript="", latestSummary="", chosenFilename="", pendingFile=null, isRecording=false;
+let audio = new Audio();
+
+const recordBtn = document.getElementById("recordBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+const uploadInput = document.getElementById("uploadInput");
+const transcriptDiv = document.getElementById("transcript");
+const summaryDiv = document.getElementById("summary");
+const downloadBtn = document.getElementById("downloadBtn");
+const themeToggle = document.getElementById("themeToggle");
+const playBtn = document.getElementById("playBtn");
+const seekBar = document.getElementById("seekBar");
+const timeDisplay = document.getElementById("timeDisplay");
+
+const nameModal = document.getElementById("nameModal");
+const filenameInput = document.getElementById("filenameInput");
+const saveNameBtn = document.getElementById("saveNameBtn");
+const cancelNameBtn = document.getElementById("cancelNameBtn");
+
+function updateClock(){
+    const now = new Date();
+    const date = now.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const time = now.toLocaleTimeString();
+    document.getElementById("clock").textContent = `${date} | ${time}`;
+}
+setInterval(updateClock,1000); updateClock();
+
+recordBtn.onclick = async ()=>{
+    if(!isRecording){
+        const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+        audioChunks=[];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e=>audioChunks.push(e.data);
+        mediaRecorder.start();
+        isRecording=true;
+        recordBtn.textContent="⏹️ Stop Recording";
+        downloadBtn.disabled=true;
+    } else {
+        mediaRecorder.stop();
+        setTimeout(()=>{ pendingFile = new Blob(audioChunks,{type:"audio/webm"}); openModal(); },100);
+        isRecording=false;
+        recordBtn.textContent="🎤 Start Recording";
+    }
+};
+
+uploadBtn.onclick = ()=>uploadInput.click();
+uploadInput.onchange = ()=>{ const file = uploadInput.files[0]; if(!file) return; pendingFile=file; openModal(); };
+
+function openModal(){ filenameInput.value=""; nameModal.style.display="block"; }
+function closeModal(){ nameModal.style.display="none"; }
+
+saveNameBtn.onclick = ()=>{ chosenFilename = filenameInput.value.trim() || `note_${new Date().toTimeString().slice(0,8).replace(/:/g,"-")}`; closeModal(); processAudio(pendingFile,chosenFilename); pendingFile=null; };
+cancelNameBtn.onclick = ()=>{ closeModal(); pendingFile=null; };
+
+themeToggle.onclick = ()=>{ document.body.classList.toggle("dark"); themeToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙"; };
+
+downloadBtn.onclick = ()=>{
+    const filename = chosenFilename+".txt";
+    const content = `=== Transcript ===\n\n${latestTranscript}\n\n=== Summary ===\n\n${latestSummary}`;
+    const blob = new Blob([content],{type:"text/plain"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+};
+
+async function processAudio(file,filename){
+    loadAudio(file);
+    transcriptDiv.textContent="Processing..."; summaryDiv.textContent=""; downloadBtn.disabled=true;
+    const formData = new FormData();
+    formData.append("audio_data",file,filename+".webm");
+    formData.append("filename",filename);
+    try{
+        const response = await fetch("/process_audio",{method:"POST",body:formData});
+        const data = await response.json();
+        if(data.error){ transcriptDiv.textContent="❌ Error: "+data.error; summaryDiv.textContent=""; }
+        else{
+            latestTranscript=data.transcript; latestSummary=data.summary;
+            transcriptDiv.classList.remove("fade-in"); summaryDiv.classList.remove("fade-in");
+            void transcriptDiv.offsetWidth; void summaryDiv.offsetWidth;
+            transcriptDiv.textContent=latestTranscript; summaryDiv.textContent=latestSummary;
+            transcriptDiv.classList.add("fade-in"); summaryDiv.classList.add("fade-in");
+            downloadBtn.disabled=false;
+        }
+    } catch(err){ transcriptDiv.textContent="❌ Network error: "+err; summaryDiv.textContent=""; }
+}
+
+function formatTime(seconds){ const mins = Math.floor(seconds/60).toString().padStart(2,'0'); const secs = Math.floor(seconds%60).toString().padStart(2,'0'); return `${mins}:${secs}`; }
+function loadAudio(file){ audio.src=URL.createObjectURL(file); audio.load(); audio.onloadedmetadata=()=>{ seekBar.max=Math.floor(audio.duration); timeDisplay.textContent=`00:00 / ${formatTime(audio.duration)}`; }; }
+playBtn.onclick=()=>{ if(audio.paused){ audio.play(); playBtn.textContent="⏸️"; } else { audio.pause(); playBtn.textContent="▶️"; } };
+audio.ontimeupdate=()=>{ seekBar.value=Math.floor(audio.currentTime); timeDisplay.textContent=`${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`; };
+seekBar.oninput=()=>{ audio.currentTime=seekBar.value; };
+</script>
+</body>
+</html>
