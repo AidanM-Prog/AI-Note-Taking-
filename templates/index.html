@@ -5,7 +5,9 @@
 <title>AI Note Taker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
+
 body {
+    
     font-family: 'Inter', sans-serif;
     background: #f0f2f5;
     color: #333;
@@ -16,46 +18,31 @@ body {
     align-items: center;
     transition: background 0.3s, color 0.3s;
 }
+body.dark { background: #212121; color: #e5e7eb; }
 
-/* Dark mode */
-body.dark {
-    background: #212121;
-    color: #e5e7eb;
-}
+
+
 
 header {
     text-align: center;
     padding: 40px 20px 10px;
     position: relative;
 }
-
-h1 {
-    margin: 0;
-    font-weight: 600;
-    font-size: 2.2em;
-    color: #4a90e2;
-}
-
-#clock {
-    margin-top: 10px;
-    font-size: 1.1em;
-    color: #555;
-    transition: color 0.3s;
-}
-
+h1 { margin: 0; font-weight: 600; font-size: 2.2em; color: #4a90e2; }
+#clock { margin-top: 10px; font-size: 1.1em; color: #555; transition: color 0.3s; }
 body.dark #clock { color: #cbd5e1; }
 
-/* Dark mode toggle button far right */
 .theme-toggle {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+    position: fixed;   /* change from absolute to fixed */
+    top: 10px;         /* distance from top */
+    right: 10px;       /* distance from right */
     background: none;
     border: none;
     font-size: 1.5em;
     cursor: pointer;
     color: #555;
     transition: color 0.3s;
+    z-index: 1000;     /* ensure it’s above everything */
 }
 body.dark .theme-toggle { color: #e5e7eb; }
 
@@ -79,13 +66,7 @@ button {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     font-weight: 600;
 }
-
-button:disabled {
-    background: #2a5c99;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
+button:disabled { background: #2a5c99; cursor: not-allowed; box-shadow: none; }
 button:hover:not(:disabled) {
     background: linear-gradient(135deg, #357ABD, #2a5c99);
     transform: translateY(-2px);
@@ -102,39 +83,25 @@ button:hover:not(:disabled) {
 }
 
 .card {
-    background: #ffffffcc; /* Light mode */
+    background: #ffffffcc;
     border-radius: 15px;
     padding: 20px;
     transition: background 0.3s, color 0.3s;
 }
-
-body.dark .card {
-    background: #131313; /* Dark mode */
-    color: #e5e7eb;
-}
-
-.card h2 {
-    margin-top: 0;
-    color: #4a90e2;
-}
-
+body.dark .card { background: #131313; color: #e5e7eb; }
+.card h2 { margin-top: 0; color: #4a90e2; }
 p { white-space: pre-wrap; }
 
-/* Custom Audio Player */
 .audio-player {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 8px 12px;
     border-radius: 8px;
-    background: #ffffffcc; /* Light mode */
+    background: #ffffffcc;
     transition: background 0.3s, color 0.3s;
 }
-
-body.dark .audio-player {
-    background: #131313;
-}
-
+body.dark .audio-player { background: #131313; }
 .audio-player button {
     background: #4a90e2;
     border: none;
@@ -149,57 +116,27 @@ body.dark .audio-player {
     font-size: 16px;
     transition: background 0.3s;
 }
-
 .audio-player button:hover { background: #357ABD; }
-
 .audio-player input[type="range"] {
     flex: 1;
     height: 4px;
     border-radius: 2px;
-    background: #d1d5db; /* Light slider track */
+    background: #d1d5db;
     appearance: none;
     cursor: pointer;
 }
-
-body.dark .audio-player input[type="range"] {
-    background: #555; /* Dark slider track */
-}
-
+body.dark .audio-player input[type="range"] { background: #555; }
 .audio-player input[type="range"]::-webkit-slider-thumb,
 .audio-player input[type="range"]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #4a90e2;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
+    width: 14px; height: 14px; border-radius: 50%; background: #4a90e2; border: none; cursor: pointer; transition: background 0.3s;
 }
-
-.audio-player span {
-    font-size: 0.85em;
-    color: #333;
-    white-space: nowrap;
-}
-
+.audio-player span { font-size: 0.85em; color: #333; white-space: nowrap; }
 body.dark .audio-player span { color: #e5e7eb; }
 
-/* Modal */
-#nameModal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    left: 0;
-    top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.5); 
-}
-
+#nameModal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
 .modal-content {
     background-color: #ffffffcc;
-    margin: 15% auto; 
+    margin: 15% auto;
     padding: 30px;
     border-radius: 15px;
     width: 90%;
@@ -208,35 +145,60 @@ body.dark .audio-player span { color: #e5e7eb; }
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     transition: background 0.3s, color 0.3s;
 }
-
-body.dark .modal-content {
-    background-color: #131313;
-    color: #e5e7eb;
-}
-
+body.dark .modal-content { background-color: #131313; color: #e5e7eb; }
 .modal-content input {
-    width: 80%;
-    padding: 12px;
-    margin: 15px 0;
-    border-radius: 10px;
-    border: 1px solid #555;
-    background: #ffffffcc;
-    color: #333;
-    font-size: 1em;
+    width: 80%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #555; background: #ffffffcc; color: #333; font-size: 1em;
 }
-
-body.dark .modal-content input {
-    background: #212121;
-    color: #e5e7eb;
-}
-
+body.dark .modal-content input { background: #212121; color: #e5e7eb; }
 .modal-content button { width: 45%; margin: 5px; }
 
 .fade-in { animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+
+/* 🔹 RECENT FILES */
+.recent-files-bar {
+    background: #ffffffcc;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    justify-content: center;    
+    flex-wrap: nowrap;
+}
+body.dark .recent-files-bar { background: #131313; }
+    .recent-file-item {
+        flex: 0 0 30%;       /* each box takes ~1/3 of the bar */
+        min-width: 0;        /* allows text overflow handling */
+        background: #f4f4f4;
+        border-radius: 10px;
+        padding: 15px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center; /* vertically center text */
+        justify-content: center; /* horizontally center text */
+        height: 25px;        /* fixed height for uniform boxes */
+        text-align: center;
+}
+
+body.dark .recent-file-item { background: #1f1f1f; color: #e5e7eb; }
+
+body.dark .recent-file-item:hover {
+    background-color: #357ABD;
+    color: white;
+    transition: all 0.3s ease;
+    transform: translateY(-2px);
+}
+
+.recent-file-item:hover { background: #4a90e2; color: white; transition: all 0.3s ease; transform: translateY(-2px);}
 </style>
 </head>
-<body>
+<body class="dark">
 <header>
     <h1>🎙️ AI Note Taker</h1>
     <div style="position:absolute; top:20px; right:20px;">
@@ -262,13 +224,23 @@ body.dark .modal-content input {
             <span id="timeDisplay">00:00 / 00:00</span>
         </div>
     </div>
+
     <div class="card">
         <h2>Transcript</h2>
         <p id="transcript">None yet.</p>
     </div>
+
     <div class="card">
         <h2>Summary</h2>
         <p id="summary">None yet.</p>
+    </div>
+
+    <!-- 🔹 RECENT FILES BAR BELOW SUMMARY -->
+    <div class="card">
+        <h2>Recent Files</h2>
+        <div id="recentFiles" class="recent-files-bar">
+            <span style="opacity:0.4;">No recent files</span>
+        </div>
     </div>
 </div>
 
@@ -286,6 +258,7 @@ body.dark .modal-content input {
 <script>
 let mediaRecorder, audioChunks=[], latestTranscript="", latestSummary="", chosenFilename="", pendingFile=null, isRecording=false;
 let audio = new Audio();
+const recentFiles=[];
 
 const recordBtn = document.getElementById("recordBtn");
 const uploadBtn = document.getElementById("uploadBtn");
@@ -297,6 +270,7 @@ const themeToggle = document.getElementById("themeToggle");
 const playBtn = document.getElementById("playBtn");
 const seekBar = document.getElementById("seekBar");
 const timeDisplay = document.getElementById("timeDisplay");
+const recentFilesDiv = document.getElementById("recentFiles");
 
 const nameModal = document.getElementById("nameModal");
 const filenameInput = document.getElementById("filenameInput");
@@ -335,7 +309,12 @@ uploadInput.onchange = ()=>{ const file = uploadInput.files[0]; if(!file) return
 function openModal(){ filenameInput.value=""; nameModal.style.display="block"; }
 function closeModal(){ nameModal.style.display="none"; }
 
-saveNameBtn.onclick = ()=>{ chosenFilename = filenameInput.value.trim() || `note_${new Date().toTimeString().slice(0,8).replace(/:/g,"-")}`; closeModal(); processAudio(pendingFile,chosenFilename); pendingFile=null; };
+saveNameBtn.onclick = ()=>{ 
+    chosenFilename = filenameInput.value.trim() || `note_${new Date().toTimeString().slice(0,8).replace(/:/g,"-")}`; 
+    closeModal(); 
+    processAudio(pendingFile,chosenFilename); 
+    pendingFile=null; 
+};
 cancelNameBtn.onclick = ()=>{ closeModal(); pendingFile=null; };
 
 themeToggle.onclick = ()=>{ document.body.classList.toggle("dark"); themeToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙"; };
@@ -367,6 +346,7 @@ async function processAudio(file,filename){
             downloadBtn.disabled=false;
         }
     } catch(err){ transcriptDiv.textContent="❌ Network error: "+err; summaryDiv.textContent=""; }
+    addRecent(file, filename);
 }
 
 function formatTime(seconds){ const mins = Math.floor(seconds/60).toString().padStart(2,'0'); const secs = Math.floor(seconds%60).toString().padStart(2,'0'); return `${mins}:${secs}`; }
@@ -374,6 +354,36 @@ function loadAudio(file){ audio.src=URL.createObjectURL(file); audio.load(); aud
 playBtn.onclick=()=>{ if(audio.paused){ audio.play(); playBtn.textContent="⏸️"; } else { audio.pause(); playBtn.textContent="▶️"; } };
 audio.ontimeupdate=()=>{ seekBar.value=Math.floor(audio.currentTime); timeDisplay.textContent=`${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`; };
 seekBar.oninput=()=>{ audio.currentTime=seekBar.value; };
+
+// 🔹 RECENT FILES HANDLER
+function addRecent(file, name){
+    if(recentFiles.length >= 3) recentFiles.shift();
+    recentFiles.push({ file, name });
+
+    recentFilesDiv.innerHTML = "";
+
+    recentFiles.forEach(f => {
+        const div = document.createElement("div");
+        div.className = "recent-file-item";
+
+        // Create an audio element to read duration
+        const tempAudio = document.createElement("audio");
+        tempAudio.src = URL.createObjectURL(f.file);
+        tempAudio.addEventListener("loadedmetadata", () => {
+            const duration = formatTime(tempAudio.duration); // formatTime already defined
+            div.textContent = `${f.name} (${duration})`;
+        });
+
+        div.onclick = () => { 
+            loadAudio(f.file); 
+            audio.play(); 
+        };
+        recentFilesDiv.appendChild(div);
+    });
+}
+
+// Set toggle to match default dark mode
+themeToggle.textContent = "☀️";
 </script>
 </body>
 </html>
