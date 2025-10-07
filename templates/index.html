@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Note Taker</title>
+<title>🎙️ AI Note Taker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
-
 body {
-    
     font-family: 'Inter', sans-serif;
     background: #f0f2f5;
     color: #333;
@@ -20,9 +19,6 @@ body {
 }
 body.dark { background: #212121; color: #e5e7eb; }
 
-
-
-
 header {
     text-align: center;
     padding: 40px 20px 10px;
@@ -32,19 +28,21 @@ h1 { margin: 0; font-weight: 600; font-size: 2.2em; color: #4a90e2; }
 #clock { margin-top: 10px; font-size: 1.1em; color: #555; transition: color 0.3s; }
 body.dark #clock { color: #cbd5e1; }
 
-.theme-toggle {
-    position: fixed;   /* change from absolute to fixed */
-    top: 10px;         /* distance from top */
-    right: 10px;       /* distance from right */
+.theme-toggle, .trash-btn {
+    position: fixed;
+    top: 10px;
     background: none;
     border: none;
-    font-size: 1.5em;
+    font-size: 1.6em;
     cursor: pointer;
     color: #555;
     transition: color 0.3s;
-    z-index: 1000;     /* ensure it’s above everything */
+    z-index: 1000;
 }
-body.dark .theme-toggle { color: #e5e7eb; }
+.theme-toggle { right: 10px; }
+.trash-btn { right: 85px; }
+body.dark .theme-toggle, body.dark .trash-btn { color: #e5e7eb; }
+.trash-btn:hover { color: #ff4d4d; }
 
 .controls {
     margin: 20px 0;
@@ -108,7 +106,7 @@ body.dark .audio-player { background: #131313; }
     color: white;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: 25%;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -126,36 +124,9 @@ body.dark .audio-player { background: #131313; }
     cursor: pointer;
 }
 body.dark .audio-player input[type="range"] { background: #555; }
-.audio-player input[type="range"]::-webkit-slider-thumb,
-.audio-player input[type="range"]::-moz-range-thumb {
-    width: 14px; height: 14px; border-radius: 50%; background: #4a90e2; border: none; cursor: pointer; transition: background 0.3s;
-}
 .audio-player span { font-size: 0.85em; color: #333; white-space: nowrap; }
 body.dark .audio-player span { color: #e5e7eb; }
 
-#nameModal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-.modal-content {
-    background-color: #ffffffcc;
-    margin: 15% auto;
-    padding: 30px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    transition: background 0.3s, color 0.3s;
-}
-body.dark .modal-content { background-color: #131313; color: #e5e7eb; }
-.modal-content input {
-    width: 80%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #555; background: #ffffffcc; color: #333; font-size: 1em;
-}
-body.dark .modal-content input { background: #212121; color: #e5e7eb; }
-.modal-content button { width: 45%; margin: 5px; }
-
-.fade-in { animation: fadeIn 0.4s ease; }
-@keyframes fadeIn { from {opacity:0} to {opacity:1} }
-
-/* 🔹 RECENT FILES */
 .recent-files-bar {
     background: #ffffffcc;
     border-radius: 15px;
@@ -167,98 +138,193 @@ body.dark .modal-content input { background: #212121; color: #e5e7eb; }
     flex-wrap: nowrap;
 }
 body.dark .recent-files-bar { background: #131313; }
-    .recent-file-item {
-        flex: 0 0 30%;       /* each box takes ~1/3 of the bar */
-        min-width: 0;        /* allows text overflow handling */
-        background: #f4f4f4;
-        border-radius: 10px;
-        padding: 15px 10px;
-        cursor: pointer;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        font-weight: 600;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center; /* vertically center text */
-        justify-content: center; /* horizontally center text */
-        height: 25px;        /* fixed height for uniform boxes */
-        text-align: center;
+.recent-file-item {
+    flex: 0 0 30%;
+    min-width: 0;
+    background: #f4f4f4;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 25px;
+    text-align: center;
 }
-
 body.dark .recent-file-item { background: #1f1f1f; color: #e5e7eb; }
+.recent-file-item:hover { background: #4a90e2; color: white; transition: all 0.3s ease; transform: translateY(-2px); }
+body.dark .recent-file-item:hover { background-color: #357ABD; }
 
-body.dark .recent-file-item:hover {
-    background-color: #357ABD;
-    color: white;
-    transition: all 0.3s ease;
-    transform: translateY(-2px);
+/* 🔹 Custom popup for naming */
+.popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease;
+}
+.popup.hidden { opacity: 0; pointer-events: none; }
+
+.popup-content {
+    background: #fff;
+    color: #000;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    transform: scale(0.8);
+    opacity: 0;
+    animation: popupIn 0.3s forwards;
+}
+body.dark .popup-content { background: #1f1f1f; color: #e5e7eb; }
+
+.popup-content h3 { margin-bottom: 1rem; font-size: 1.3rem; }
+.popup-content input {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 10px;
+    border: 1px solid #999;
+    outline: none;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    background: #f7f7f7;
+}
+body.dark .popup-content input { background: #2a2a2a; color: #e5e7eb; }
+
+.popup-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.popup-buttons button {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+}
+#popupCancel { background: #999; color: #fff; }
+#popupSave { background: #4a90e2; color: #fff; }
+#popupCancel:hover { background: #777; }
+#popupSave:hover { background: #357ABD; }
+
+@keyframes popupIn {
+    to { transform: scale(1); opacity: 1; }
 }
 
-.recent-file-item:hover { background: #4a90e2; color: white; transition: all 0.3s ease; transform: translateY(-2px);}
+/* 🔹 Fake waveform icon */
+.waveform-icon {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 16px;
+    margin-right: 8px;
+}
+.wave-bar {
+    width: 2px;
+    background: #4a90e2;
+    border-radius: 1px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+.wave-bar:nth-child(1){height:6px;animation-delay:0s;}
+.wave-bar:nth-child(2){height:10px;animation-delay:0.2s;}
+.wave-bar:nth-child(3){height:14px;animation-delay:0.4s;}
+.wave-bar:nth-child(4){height:10px;animation-delay:0.6s;}
+.wave-bar:nth-child(5){height:6px;animation-delay:0.8s;}
+body.dark .wave-bar { background: #62a9ff; }
+@keyframes pulse {0%,100%{transform:scaleY(1);opacity:0.8;}50%{transform:scaleY(1.3);opacity:1;}}
 </style>
 </head>
 <body class="dark">
 <header>
-    <h1>🎙️ AI Note Taker</h1>
-    <div style="position:absolute; top:20px; right:20px;">
-        <button class="theme-toggle" id="themeToggle">🌙</button>
-    </div>
+    <h1><i class="fa-solid fa-microphone-lines"></i> AI Note Taker</h1>
+    <button class="theme-toggle" id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+    <button class="trash-btn" id="trashBtn"><i class="fa-solid fa-trash"></i></button>
     <div id="clock"></div>
     <p>Record a note or upload an audio file to get transcript & summary.</p>
 </header>
 
+<div id="fileWarning" style="width: 80%; max-width: 900px; text-align: center; margin: 1px auto; font-weight: 600; font-size: 15px; color: #ff4d4d;">
+    ⚠️ DO NOT have duplicate names for your files!
+</div>
+
+
 <div class="controls">
-    <button id="recordBtn">🎤 Start Recording</button>
-    <button id="uploadBtn">📁 Upload Audio</button>
+    <button id="recordBtn"><i class="fa-solid fa-microphone"></i> Start Recording</button>
+    <button id="uploadBtn"><i class="fa-solid fa-upload"></i> Upload Audio</button>
     <input type="file" id="uploadInput" accept="audio/*" style="display:none;">
-    <button id="downloadBtn" disabled>💾 Download Transcript & Summary</button>
+    <button id="downloadBtn" disabled><i class="fa-solid fa-download"></i> Download</button>
+    <button id="clearBtn"><i class="fa-solid fa-trash-can"></i> Clear</button>
 </div>
 
 <div class="output">
     <div class="card">
-        <h2>Playback</h2>
+        <h2><i class="fa-solid fa-play"></i> Playback</h2>
         <div class="audio-player">
-            <button id="playBtn">▶️</button>
+            <button id="playBtn"><i class="fa-solid fa-play"></i></button>
             <input type="range" id="seekBar" value="0" min="0" step="1">
             <span id="timeDisplay">00:00 / 00:00</span>
         </div>
     </div>
 
     <div class="card">
-        <h2>Transcript</h2>
+        <h2><i class="fa-solid fa-quote-left"></i> Transcript</h2>
         <p id="transcript">None yet.</p>
     </div>
 
     <div class="card">
-        <h2>Summary</h2>
+        <h2><i class="fa-solid fa-list-check"></i> Summary</h2>
         <p id="summary">None yet.</p>
     </div>
 
-    <!-- 🔹 RECENT FILES BAR BELOW SUMMARY -->
     <div class="card">
-        <h2>Recent Files</h2>
+        <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Files</h2>
         <div id="recentFiles" class="recent-files-bar">
             <span style="opacity:0.4;">No recent files</span>
         </div>
     </div>
 </div>
 
-<div id="nameModal">
-    <div class="modal-content">
-        <h3>Name Your File</h3>
-        <input type="text" id="filenameInput" placeholder="Enter file name">
-        <div>
-            <button id="saveNameBtn">Save</button>
-            <button id="cancelNameBtn">Cancel</button>
-        </div>
+<!-- 📄 Custom popup -->
+<div id="filenamePopup" class="popup hidden">
+  <div class="popup-content">
+    <h3>Name your note</h3>
+    <input type="text" id="filenameInput" placeholder="Enter note name..." />
+    <div class="popup-buttons">
+      <button id="popupCancel">Cancel</button>
+      <button id="popupSave">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- Trash Modal -->
+<div id="trashModal" class="popup hidden">
+  <div class="popup-content">
+    <h3>Trash</h3>
+    <div id="trashList" style="max-height:300px; overflow-y:auto;"></div>
+    <div style="margin-top: 1rem;">
+      <button id="closeTrashBtn">Close</button>
+    </div>
+  </div>
 </div>
 
 <script>
 let mediaRecorder, audioChunks=[], latestTranscript="", latestSummary="", chosenFilename="", pendingFile=null, isRecording=false;
 let audio = new Audio();
-const recentFiles=[];
+let recentFiles = [];
 
 const recordBtn = document.getElementById("recordBtn");
 const uploadBtn = document.getElementById("uploadBtn");
@@ -271,11 +337,11 @@ const playBtn = document.getElementById("playBtn");
 const seekBar = document.getElementById("seekBar");
 const timeDisplay = document.getElementById("timeDisplay");
 const recentFilesDiv = document.getElementById("recentFiles");
-
-const nameModal = document.getElementById("nameModal");
-const filenameInput = document.getElementById("filenameInput");
-const saveNameBtn = document.getElementById("saveNameBtn");
-const cancelNameBtn = document.getElementById("cancelNameBtn");
+const clearBtn = document.getElementById("clearBtn");
+const trashBtn = document.getElementById("trashBtn");
+const trashModal = document.getElementById("trashModal");
+const trashList = document.getElementById("trashList");
+const closeTrashBtn = document.getElementById("closeTrashBtn");
 
 function updateClock(){
     const now = new Date();
@@ -285,6 +351,65 @@ function updateClock(){
 }
 setInterval(updateClock,1000); updateClock();
 
+function blobToBase64(blob){
+    return new Promise((resolve)=>{
+        const reader=new FileReader();
+        reader.onloadend=()=>resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
+}
+async function base64ToBlob(base64){ const res=await fetch(base64); return await res.blob(); }
+
+async function askFilename(defaultName="New Note") {
+    // Fetch existing filenames from the server
+    let existing = [];
+    try {
+        const res = await fetch("/list_recordings");
+        const data = await res.json();
+        existing = data.map(f => f.split("/")[1]); // get subfolder names
+    } catch(err) { console.error("Could not fetch existing files:", err); }
+
+    // Automatically add numeric suffix if duplicate exists
+    let finalName = defaultName;
+    let counter = 1;
+    while(existing.includes(finalName)) {
+        finalName = `${defaultName} ${counter}`;
+        counter++;
+    }
+
+    return new Promise((resolve) => {
+        const popup = document.getElementById("filenamePopup");
+        const input = document.getElementById("filenameInput");
+        const saveBtn = document.getElementById("popupSave");
+        const cancelBtn = document.getElementById("popupCancel");
+
+        input.value = finalName;
+        popup.classList.remove("hidden");
+        input.focus();
+
+        const handleKey = (e) => {
+            if (e.key === "Enter") saveBtn.click();
+        };
+        input.addEventListener("keydown", handleKey);
+
+        const cleanup = () => {
+            popup.classList.add("hidden");
+            saveBtn.onclick = cancelBtn.onclick = null;
+            input.removeEventListener("keydown", handleKey);
+        };
+
+        saveBtn.onclick = () => {
+            const name = input.value.trim() || finalName;
+            cleanup();
+            resolve(name);
+        };
+
+        cancelBtn.onclick = () => { cleanup(); resolve(null); };
+    });
+}
+
+
+// Recording & upload
 recordBtn.onclick = async ()=>{
     if(!isRecording){
         const stream = await navigator.mediaDevices.getUserMedia({audio:true});
@@ -293,32 +418,52 @@ recordBtn.onclick = async ()=>{
         mediaRecorder.ondataavailable = e=>audioChunks.push(e.data);
         mediaRecorder.start();
         isRecording=true;
-        recordBtn.textContent="⏹️ Stop Recording";
+        recordBtn.innerHTML='<i class="fa-solid fa-stop"></i> Stop Recording';
         downloadBtn.disabled=true;
     } else {
         mediaRecorder.stop();
-        setTimeout(()=>{ pendingFile = new Blob(audioChunks,{type:"audio/webm"}); openModal(); },100);
+        setTimeout(async ()=>{
+            pendingFile = new Blob(audioChunks,{type:"audio/webm"});
+            let filename = await askFilename("New Note");
+            if(!filename) return;
+            chosenFilename = filename;
+            processAudio(pendingFile,chosenFilename);
+            pendingFile=null;
+        },100);
         isRecording=false;
-        recordBtn.textContent="🎤 Start Recording";
+        recordBtn.innerHTML='<i class="fa-solid fa-microphone"></i> Start Recording';
     }
 };
-
 uploadBtn.onclick = ()=>uploadInput.click();
-uploadInput.onchange = ()=>{ const file = uploadInput.files[0]; if(!file) return; pendingFile=file; openModal(); };
-
-function openModal(){ filenameInput.value=""; nameModal.style.display="block"; }
-function closeModal(){ nameModal.style.display="none"; }
-
-saveNameBtn.onclick = ()=>{ 
-    chosenFilename = filenameInput.value.trim() || `note_${new Date().toTimeString().slice(0,8).replace(/:/g,"-")}`; 
-    closeModal(); 
-    processAudio(pendingFile,chosenFilename); 
-    pendingFile=null; 
+uploadInput.onchange = async ()=>{ 
+    const file = uploadInput.files[0]; 
+    if(!file) return; 
+    let filename = await askFilename(file.name.replace(/\.[^/.]+$/, ""));
+    if(!filename) return;
+    chosenFilename = filename;
+    processAudio(file, filename); 
 };
-cancelNameBtn.onclick = ()=>{ closeModal(); pendingFile=null; };
 
-themeToggle.onclick = ()=>{ document.body.classList.toggle("dark"); themeToggle.textContent=document.body.classList.contains("dark")?"☀️":"🌙"; };
+// Theme toggle
+themeToggle.onclick = ()=>{
+    document.body.classList.toggle("dark");
+    themeToggle.innerHTML = document.body.classList.contains("dark")
+        ? '<i class="fa-solid fa-sun"></i>'
+        : '<i class="fa-solid fa-moon"></i>';
+};
 
+// Clear button
+clearBtn.onclick = () => {
+    audio.pause(); audio.src=""; seekBar.value=0; timeDisplay.textContent="00:00 / 00:00";
+    transcriptDiv.textContent="None yet."; summaryDiv.textContent="None yet.";
+    downloadBtn.disabled=true; chosenFilename="";
+};
+
+// Trash modal
+trashBtn.onclick = () => { renderTrash(); trashModal.classList.remove("hidden"); };
+closeTrashBtn.onclick = () => { trashModal.classList.add("hidden"); };
+
+// Playback
 downloadBtn.onclick = ()=>{
     const filename = chosenFilename+".txt";
     const content = `=== Transcript ===\n\n${latestTranscript}\n\n=== Summary ===\n\n${latestSummary}`;
@@ -327,63 +472,136 @@ downloadBtn.onclick = ()=>{
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
 };
 
-async function processAudio(file,filename){
-    loadAudio(file);
-    transcriptDiv.textContent="Processing..."; summaryDiv.textContent=""; downloadBtn.disabled=true;
-    const formData = new FormData();
-    formData.append("audio_data",file,filename+".webm");
-    formData.append("filename",filename);
-    try{
-        const response = await fetch("/process_audio",{method:"POST",body:formData});
-        const data = await response.json();
-        if(data.error){ transcriptDiv.textContent="❌ Error: "+data.error; summaryDiv.textContent=""; }
-        else{
-            latestTranscript=data.transcript; latestSummary=data.summary;
-            transcriptDiv.classList.remove("fade-in"); summaryDiv.classList.remove("fade-in");
-            void transcriptDiv.offsetWidth; void summaryDiv.offsetWidth;
-            transcriptDiv.textContent=latestTranscript; summaryDiv.textContent=latestSummary;
-            transcriptDiv.classList.add("fade-in"); summaryDiv.classList.add("fade-in");
-            downloadBtn.disabled=false;
-        }
-    } catch(err){ transcriptDiv.textContent="❌ Network error: "+err; summaryDiv.textContent=""; }
-    addRecent(file, filename);
-}
-
-function formatTime(seconds){ const mins = Math.floor(seconds/60).toString().padStart(2,'0'); const secs = Math.floor(seconds%60).toString().padStart(2,'0'); return `${mins}:${secs}`; }
+function formatTime(seconds){ const mins=Math.floor(seconds/60).toString().padStart(2,'0'); const secs=Math.floor(seconds%60).toString().padStart(2,'0'); return `${mins}:${secs}`; }
 function loadAudio(file){ audio.src=URL.createObjectURL(file); audio.load(); audio.onloadedmetadata=()=>{ seekBar.max=Math.floor(audio.duration); timeDisplay.textContent=`00:00 / ${formatTime(audio.duration)}`; }; }
-playBtn.onclick=()=>{ if(audio.paused){ audio.play(); playBtn.textContent="⏸️"; } else { audio.pause(); playBtn.textContent="▶️"; } };
+playBtn.onclick=()=>{ if(audio.paused){ audio.play(); playBtn.innerHTML='<i class="fa-solid fa-pause"></i>'; } else { audio.pause(); playBtn.innerHTML='<i class="fa-solid fa-play"></i>'; } };
 audio.ontimeupdate=()=>{ seekBar.value=Math.floor(audio.currentTime); timeDisplay.textContent=`${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`; };
 seekBar.oninput=()=>{ audio.currentTime=seekBar.value; };
 
-// 🔹 RECENT FILES HANDLER
-function addRecent(file, name){
+async function processAudio(file, filename){
+    loadAudio(file);
+    transcriptDiv.textContent = "Processing...";
+    summaryDiv.textContent = "";
+    downloadBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append("audio_data", file, filename + ".webm");
+    formData.append("filename", filename);
+
+    try {
+        const response = await fetch("/process_audio", { method: "POST", body: formData });
+        const data = await response.json();
+
+        if (data.error) {
+            transcriptDiv.textContent = "❌ Error: " + data.error;
+            summaryDiv.textContent = "";
+        } else {
+            latestTranscript = data.transcript;
+
+            if (Array.isArray(data.summary)) {
+                latestSummary = data.summary.map(item => `• [${item.time}] ${item.text}`).join("\n");
+                summaryDiv.innerHTML = "";
+                const ul = document.createElement("ul");
+                data.summary.forEach(item => {
+                    const li = document.createElement("li");
+                    li.style.cursor = "pointer"; li.style.marginBottom="0.4em";
+                    li.innerHTML = `<strong>[${item.time}]</strong> ${item.text}`;
+                    li.onclick = () => {
+                        if(audio.duration){
+                            const [min, sec] = item.time.split(":").map(Number);
+                            audio.currentTime = min*60 + sec;
+                            audio.play(); playBtn.innerHTML='<i class="fa-solid fa-pause"></i>';
+                        }
+                    };
+                    ul.appendChild(li);
+                });
+                summaryDiv.appendChild(ul);
+            } else { latestSummary = data.summary; summaryDiv.textContent = latestSummary; }
+            transcriptDiv.textContent = latestTranscript;
+            downloadBtn.disabled = false;
+        }
+    } catch(err) { transcriptDiv.textContent = "❌ Network error: "+err; }
+    await addRecent(file, filename);
+}
+
+// Recent files management
+async function addRecent(file, name){
+    const now = new Date();
+    const dateStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    const filePath = `${dateStr}/${name}`;
+
+    // Already guaranteed unique via askFilename
     if(recentFiles.length >= 3) recentFiles.shift();
-    recentFiles.push({ file, name });
+    const base64 = await blobToBase64(file);
 
-    recentFilesDiv.innerHTML = "";
+    recentFiles.push({name: name, path: filePath, file: base64});
+    localStorage.setItem("recentFiles", JSON.stringify(recentFiles));
+    renderRecent();
+}
 
-    recentFiles.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "recent-file-item";
-
-        // Create an audio element to read duration
-        const tempAudio = document.createElement("audio");
-        tempAudio.src = URL.createObjectURL(f.file);
-        tempAudio.addEventListener("loadedmetadata", () => {
-            const duration = formatTime(tempAudio.duration); // formatTime already defined
-            div.textContent = `${f.name} (${duration})`;
-        });
-
-        div.onclick = () => { 
-            loadAudio(f.file); 
-            audio.play(); 
+async function renderRecent(){
+    recentFilesDiv.innerHTML="";
+    if(recentFiles.length===0){ recentFilesDiv.innerHTML='<span style="opacity:0.4;">No recent files</span>'; return; }
+    recentFiles.forEach((item,index)=>{
+        const div=document.createElement("div");
+        div.className="recent-file-item";
+        div.innerHTML=`<div class="waveform-icon">${'<div class="wave-bar"></div>'.repeat(5)}</div>${item.name}`;
+        div.onclick=async ()=>{
+            const blob=await base64ToBlob(item.file);
+            loadAudio(blob);
+            transcriptDiv.textContent="(Reload transcript manually)";
+            summaryDiv.textContent="";
+            chosenFilename=item.name;
         };
         recentFilesDiv.appendChild(div);
     });
 }
 
-// Set toggle to match default dark mode
-themeToggle.textContent = "☀️";
+// Trash rendering
+function renderTrash(){
+    trashList.innerHTML="";
+    if(recentFiles.length===0){ trashList.innerHTML="<p>No files.</p>"; return; }
+    recentFiles.forEach((item,index)=>{
+        const div=document.createElement("div");
+        div.style.display="flex"; div.style.justifyContent="space-between"; div.style.marginBottom="0.5em";
+        const deleteBtn = document.createElement("button");
+        deleteBtn.style.background="#ff4d4d";
+        deleteBtn.style.color="#fff";
+        deleteBtn.style.border="none";
+        deleteBtn.style.padding="2px 6px";
+        deleteBtn.style.borderRadius="5px";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.onclick = async ()=>{
+            try {
+                const response = await fetch("/delete_recording", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({filename: item.path})
+                });
+                const data = await response.json();
+                if(data.status==="deleted"){
+                    recentFiles.splice(index,1);
+                    localStorage.setItem("recentFiles", JSON.stringify(recentFiles));
+                    renderRecent(); renderTrash();
+                } else {
+                    alert("Error deleting file: " + data.error);
+                }
+            } catch(err){
+                alert("Network error: " + err);
+            }
+        };
+        div.innerHTML = `<span>${item.name}</span>`;
+        div.appendChild(deleteBtn);
+        trashList.appendChild(div);
+    });
+}
+
+window.addEventListener("load",()=>{
+    const stored = localStorage.getItem("recentFiles");
+    if(stored) recentFiles = JSON.parse(stored);
+    renderRecent();
+});
 </script>
+
 </body>
 </html>
